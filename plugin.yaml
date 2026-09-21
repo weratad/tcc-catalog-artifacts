@@ -1,0 +1,6 @@
+name: tcc-catalog-artifacts
+version: "1.0.0"
+description: "Attach find_events items as hermes.catalog.events on chat completions"
+author: "TCC"
+hooks:
+  - post_tool_call
