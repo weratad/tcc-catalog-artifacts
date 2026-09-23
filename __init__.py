@@ -117,6 +117,29 @@ def _artist_names(raw: Any) -> List[str]:
     return names
 
 
+def _ticket_tier_count(raw: Dict[str, Any]) -> int:
+    if "ticket_tier_count" in raw and raw.get("ticket_tier_count") is not None:
+        try:
+            return max(0, int(raw.get("ticket_tier_count")))
+        except (TypeError, ValueError):
+            pass
+    tiers = raw.get("ticket_tiers")
+    if not isinstance(tiers, list):
+        return 0
+    n = 0
+    for t in tiers:
+        if not isinstance(t, dict):
+            continue
+        p = t.get("price_min") if t.get("price_min") is not None else t.get("price")
+        try:
+            if p is not None and float(p) == float(p):  # finite
+                float(p)
+                n += 1
+        except (TypeError, ValueError):
+            continue
+    return n
+
+
 def _price_label(raw: Dict[str, Any]) -> str:
     lo = raw.get("price_min")
     hi = raw.get("price_max")
@@ -186,6 +209,7 @@ def map_catalog_item(raw: Any) -> Optional[Dict[str, Any]]:
         card["id"] = item_id
     if pid > 0:
         card["product_id"] = pid
+    card["ticket_tier_count"] = _ticket_tier_count(raw)
     return card
 
 

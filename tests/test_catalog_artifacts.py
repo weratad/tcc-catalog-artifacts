@@ -110,6 +110,44 @@ def main() -> None:
     assert out["hermes"]["catalog"]["events"][0]["title"] == "Show A"
     assert mod.take_events("sess-1") == []
 
+    zero = mod.map_catalog_item(
+        {
+            "title": "STARRY",
+            "product_id": 5961,
+            "price_min": 790,
+            "price_max": 2990,
+            "ticket_tier_count": 0,
+        }
+    )
+    assert zero["ticket_tier_count"] == 0
+
+    from_tiers = mod.map_catalog_item(
+        {
+            "title": "Echo",
+            "product_id": 3080,
+            "ticket_tiers": [
+                {"zone": "GA", "price_min": 1350},
+                {"zone": "VIP", "price_min": 2700},
+            ],
+        }
+    )
+    assert from_tiers["ticket_tier_count"] == 2
+
+    posters = mod.events_from_tool_payload(
+        {
+            "title": "Echo",
+            "product_id": 3080,
+            "poster_url": "https://cdn.example/e.jpg",
+            "ticket_tiers": [
+                {"zone": "GA", "price_min": 1},
+                {"zone": "VIP", "price_min": 2},
+            ],
+        },
+        layout="poster",
+    )
+    assert posters[0]["layout"] == "poster"
+    assert posters[0]["ticket_tier_count"] == 2
+
     print("tcc-catalog-artifacts ok")
 
 
